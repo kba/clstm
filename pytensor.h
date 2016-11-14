@@ -20,18 +20,18 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-template <class T, size_t n>
+template <class T, int n>
 using Tensor = Eigen::Tensor<T, n>;
-template <class T, size_t n>
+template <class T, int n>
 using TensorRM = Eigen::Tensor<T, n, Eigen::RowMajor>;
 
-template <class T, size_t n>
+template <class T, int n>
 void assign(Tensor<T, n> &dest, TensorRM<T, n> &src) {
   Eigen::array<int, n> rev;
   for (int i = 0; i < n; i++) rev[i] = n - i - 1;
   dest = src.swap_layout().shuffle(rev);
 }
-template <class T, size_t n>
+template <class T, int n>
 void assign(TensorRM<T, n> &dest, Tensor<T, n> &src) {
   Eigen::array<int, n> rev;
   for (int i = 0; i < n; i++) rev[i] = n - i - 1;
@@ -59,10 +59,10 @@ struct PyServer {
   string evalf(const char *format, ...) { return ""; }
   void clf() {}
   void subplot(int rows, int cols, int n) {}
-  void plot(Tensor<float, 1> &v, string extra = "") {}
-  void plot2(Tensor<float, 1> &u, Tensor<float, 1> &v, string extra = "") {}
-  void imshow(Tensor<float, 2> &a, string extra = "") {}
-  void imshowT(Tensor<float, 2> &a, string extra = "") {}
+  void plot(Tensor<float, 1ul> &v, string extra = "") {}
+  void plot2(Tensor<float, 1ul> &u, Tensor<float, 1ul> &v, string extra = "") {}
+  void imshow(Tensor<float, 2ul> &a, string extra = "") {}
+  void imshowT(Tensor<float, 2ul> &a, string extra = "") {}
 };
 #else
 struct PyServer {
@@ -98,13 +98,13 @@ struct PyServer {
     message >> result;
     return result;
   }
-  template <class T, size_t n>
+  template <class T, int n>
   void add(zmqpp::message &message, Tensor<T, n> &a) {
     TensorRM<T, n> temp;
     assign(temp, a);
     message.add_raw((const char *)temp.data(), temp.size() * sizeof(T));
   }
-  template <class T, size_t n>
+  template <class T, int n>
   string eval(string s, Tensor<T, n> &a) {
     if (mode < 0)
       return "";
@@ -120,7 +120,7 @@ struct PyServer {
     message >> response;
     return response;
   }
-  template <class T, size_t n, class S, size_t m>
+  template <class T, int n, class S, int m>
   string eval(string s, Tensor<T, n> &a, Tensor<S, m> &b) {
     if (mode < 0)
       return "";
